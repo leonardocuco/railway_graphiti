@@ -650,10 +650,22 @@ async def process_episode_queue(group_id: str):
         logger.info(f'Stopped episode queue worker for group_id: {group_id}')
 
 
+# API key authentication
+VALID_API_KEY = os.getenv("MCP_API_KEY")
+
+def validate_api_key(api_key: str) -> None:
+    """Ensure the provided API key matches the server's expected key."""
+    if VALID_API_KEY is None:
+        raise ValueError("MCP_API_KEY environment variable not set")
+    if api_key != VALID_API_KEY:
+        raise ValueError("Unauthorized: invalid API key")
+
+
 @mcp.tool()
 async def add_episode(
     name: str,
     episode_body: str,
+    api_key: str,
     group_id: str | None = None,
     source: str = 'text',
     source_description: str = '',
@@ -669,6 +681,7 @@ async def add_episode(
         episode_body (str): The content of the episode. When source='json', this must be a properly escaped JSON string,
                            not a raw Python dictionary. The JSON data will be automatically processed
                            to extract entities and relationships.
+        api_key (str): API key for authentication (required)
         group_id (str, optional): A unique ID for this graph. If not provided, uses the default group_id from CLI
                                  or a generated one.
         source (str, optional): Source type, must be one of:
@@ -714,6 +727,7 @@ async def add_episode(
         - Entities will be created from appropriate JSON properties
         - Relationships between entities will be established based on the JSON structure
     """
+    validate_api_key(api_key)
     global graphiti_client, episode_queues, queue_workers
 
     if graphiti_client is None:
@@ -794,6 +808,7 @@ async def add_episode(
 @mcp.tool()
 async def search_nodes(
     query: str,
+    api_key: str,
     group_ids: list[str] | None = None,
     max_nodes: int = 10,
     center_node_uuid: str | None = None,
@@ -806,11 +821,13 @@ async def search_nodes(
 
     Args:
         query: The search query
+        api_key: API key for authentication (required)
         group_ids: Optional list of group IDs to filter results
         max_nodes: Maximum number of nodes to return (default: 10)
         center_node_uuid: Optional UUID of a node to center the search around
         entity: Optional single entity type to filter results (permitted: "Preference", "Procedure")
     """
+    validate_api_key(api_key)
     global graphiti_client
 
     if graphiti_client is None:
@@ -875,6 +892,7 @@ async def search_nodes(
 @mcp.tool()
 async def search_facts(
     query: str,
+    api_key: str,
     group_ids: list[str] | None = None,
     max_facts: int = 10,
     center_node_uuid: str | None = None,
@@ -883,10 +901,12 @@ async def search_facts(
 
     Args:
         query: The search query
+        api_key: API key for authentication (required)
         group_ids: Optional list of group IDs to filter results
         max_facts: Maximum number of facts to return (default: 10)
         center_node_uuid: Optional UUID of a node to center the search around
     """
+    validate_api_key(api_key)
     global graphiti_client
 
     if graphiti_client is None:
@@ -923,12 +943,14 @@ async def search_facts(
 
 
 @mcp.tool()
-async def delete_entity_edge(uuid: str) -> SuccessResponse | ErrorResponse:
+async def delete_entity_edge(uuid: str, api_key: str) -> SuccessResponse | ErrorResponse:
     """Delete an entity edge from the Graphiti knowledge graph.
 
     Args:
         uuid: UUID of the entity edge to delete
+        api_key: API key for authentication (required)
     """
+    validate_api_key(api_key)
     global graphiti_client
 
     if graphiti_client is None:
@@ -953,12 +975,14 @@ async def delete_entity_edge(uuid: str) -> SuccessResponse | ErrorResponse:
 
 
 @mcp.tool()
-async def delete_episode(uuid: str) -> SuccessResponse | ErrorResponse:
+async def delete_episode(uuid: str, api_key: str) -> SuccessResponse | ErrorResponse:
     """Delete an episode from the Graphiti knowledge graph.
 
     Args:
         uuid: UUID of the episode to delete
+        api_key: API key for authentication (required)
     """
+    validate_api_key(api_key)
     global graphiti_client
 
     if graphiti_client is None:
@@ -983,12 +1007,14 @@ async def delete_episode(uuid: str) -> SuccessResponse | ErrorResponse:
 
 
 @mcp.tool()
-async def get_entity_edge(uuid: str) -> dict[str, Any] | ErrorResponse:
+async def get_entity_edge(uuid: str, api_key: str) -> dict[str, Any] | ErrorResponse:
     """Get an entity edge from the Graphiti knowledge graph by its UUID.
 
     Args:
         uuid: UUID of the entity edge to retrieve
+        api_key: API key for authentication (required)
     """
+    validate_api_key(api_key)
     global graphiti_client
 
     if graphiti_client is None:
@@ -1015,14 +1041,16 @@ async def get_entity_edge(uuid: str) -> dict[str, Any] | ErrorResponse:
 
 @mcp.tool()
 async def get_episodes(
-    group_id: str | None = None, last_n: int = 10
+    api_key: str, group_id: str | None = None, last_n: int = 10
 ) -> list[dict[str, Any]] | EpisodeSearchResponse | ErrorResponse:
     """Get the most recent episodes for a specific group.
 
     Args:
+        api_key: API key for authentication (required)
         group_id: ID of the group to retrieve episodes from. If not provided, uses the default group_id.
         last_n: Number of most recent episodes to retrieve (default: 10)
     """
+    validate_api_key(api_key)
     global graphiti_client
 
     if graphiti_client is None:
@@ -1064,8 +1092,13 @@ async def get_episodes(
 
 
 @mcp.tool()
-async def clear_graph() -> SuccessResponse | ErrorResponse:
-    """Clear all data from the Graphiti knowledge graph and rebuild indices."""
+async def clear_graph(api_key: str) -> SuccessResponse | ErrorResponse:
+    """Clear all data from the Graphiti knowledge graph and rebuild indices.
+
+    Args:
+        api_key: API key for authentication (required)
+    """
+    validate_api_key(api_key)
     global graphiti_client
 
     if graphiti_client is None:
@@ -1089,8 +1122,13 @@ async def clear_graph() -> SuccessResponse | ErrorResponse:
 
 
 @mcp.resource('http://graphiti/status')
-async def get_status() -> StatusResponse:
-    """Get the status of the Graphiti MCP server and Neo4j connection."""
+async def get_status(api_key: str) -> StatusResponse:
+    """Get the status of the Graphiti MCP server and Neo4j connection.
+
+    Args:
+        api_key: API key for authentication (required)
+    """
+    validate_api_key(api_key)
     global graphiti_client
 
     if graphiti_client is None:
