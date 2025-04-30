@@ -22,5 +22,6 @@ EXPOSE 8000
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Command to run the application
-CMD ["uv", "run", "graphiti_mcp_server.py"]
+# Command to run the application with a specific group-id
+ENV GROUP_ID=my_group_id
+CMD ["uv", "run", "graphiti_mcp_server.py", "--group-id", "$GROUP_ID"]
