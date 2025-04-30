@@ -1,0 +1,38 @@
+{
+  "name": "Graphiti MCP Server",
+  "description": "Deploy the Graphiti MCP server with a managed Neo4j database on Railway.",
+  "services": [
+    {
+      "name": "mcp-server",
+      "sourceDir": ".",
+      "startCommand": "uv run graphiti_mcp_server.py --transport sse",
+      "envVars": [
+        {
+          "key": "NEO4J_URI",
+          "value": "${{neo4j.BOLT_URL}}"
+        },
+        {
+          "key": "NEO4J_USER",
+          "value": "${{neo4j.USERNAME}}"
+        },
+        {
+          "key": "NEO4J_PASSWORD",
+          "value": "${{neo4j.PASSWORD}}"
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "required": true
+        },
+        {
+          "key": "MODEL_NAME",
+          "value": "gpt-4.1-mini"
+        }
+      ],
+      "plugins": [
+        {
+          "name": "neo4j"
+        }
+      ]
+    }
+  ]
+} 

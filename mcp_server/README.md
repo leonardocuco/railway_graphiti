@@ -1,3 +1,18 @@
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template/YOUR_TEMPLATE_ID)
+
+---
+
+# Deploy on Railway
+
+You can deploy the Graphiti MCP Server with a managed Neo4j database on Railway in one click:
+
+1. Click the **Deploy on Railway** button above.
+2. Set your `OPENAI_API_KEY` when prompted.
+3. Railway will provision a managed Neo4j database and connect it to the MCP server automatically.
+4. Once deployed, your MCP server will be available at the generated Railway URL (port 8000).
+
+---
+
 # Graphiti MCP Server
 
 Graphiti is a framework for building and querying temporally-aware knowledge graphs, specifically tailored for AI agents
