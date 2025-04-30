@@ -1122,13 +1122,12 @@ async def clear_graph(api_key: str) -> SuccessResponse | ErrorResponse:
 
 
 @mcp.resource('http://graphiti/status')
-async def get_status(api_key: str) -> StatusResponse:
+async def get_status() -> StatusResponse:
     """Get the status of the Graphiti MCP server and Neo4j connection.
 
     Args:
         api_key: API key for authentication (required)
     """
-    validate_api_key(api_key)
     global graphiti_client
 
     if graphiti_client is None:
