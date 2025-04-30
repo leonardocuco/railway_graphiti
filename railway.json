@@ -27,11 +27,6 @@
           "key": "MODEL_NAME",
           "value": "gpt-4.1-mini"
         }
-      ],
-      "plugins": [
-        {
-          "name": "neo4j"
-        }
       ]
     }
   ]
